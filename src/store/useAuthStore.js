@@ -91,26 +91,25 @@ export const useAuthStore = create((set, get) => ({
   },
 
   // Connect to Socket.IO
-  connectSocket: () => {
-    const { authUser } = get();
-    if (!authUser || get().socket?.connected) return;
+ connectSocket: () => {
+  const { authUser } = get();
+  if (!authUser || get().socket?.connected) return;
 
-    const socket = io(BASE_URL, {
-      query: {
-        userId: authUser._id,
-      },
-    });
-    socket.connect();
+  const socket = io("https://chat-back-free.onrender.com", { 
+    query: {
+      userId: authUser._id,
+    },
+    transports: ["websocket"], // Force WebSocket connection
+  });
 
-    set({ socket: socket });
+  set({ socket: socket });
 
-    socket.on("getOnlineUsers", (userIds) => {
-      set({ onlineUsers: userIds });
-    });
-  },
+  socket.on("getOnlineUsers", (userIds) => {
+    set({ onlineUsers: userIds });
+  });
+},
 
-  // Disconnect from Socket.IO
-  disconnectSocket: () => {
-    if (get().socket?.connected) get().socket.disconnect();
-  },
-}));
+// Disconnect from Socket.IO
+disconnectSocket: () => {
+  if (get().socket?.connected) get().socket.disconnect();
+},
